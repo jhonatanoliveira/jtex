@@ -1,0 +1,44 @@
+#!/usr/local/bin/python3
+
+import subprocess, os, shutil
+import argparse
+
+# Argument parser
+parser = argparse.ArgumentParser()
+parser.add_argument("name", help="Latex file name")
+parser.add_argument("-v","--view", help="Open PDF file after compilation process", action="store_true")
+args = parser.parse_args()
+
+# Directory name for temporary files
+TMP_DIRECTORY_NAME = ".jtex_tmp"
+
+# Latex main file name
+LATEX_FILE_MAIN_NAME = args.name
+LATEX_MAIN_NAME = LATEX_FILE_MAIN_NAME[0:-4]
+# PDF name remove ".tex" from the latex file
+PDF_MAIN_NAME = LATEX_MAIN_NAME + ".pdf"
+
+# Check if temporary directory exists
+if not os.path.exists(TMP_DIRECTORY_NAME):
+    os.makedirs(TMP_DIRECTORY_NAME)
+
+
+# Instructions from http://texblog.org/2015/08/20/hiding-latex-metafiles-from-project-directory
+# pdflatex -output-directory=metafiles main
+subprocess.run(["pdflatex", "-output-directory="+TMP_DIRECTORY_NAME, LATEX_MAIN_NAME])
+# biber --input-directory=metafiles --output-directory=metafiles main
+subprocess.run(["bibtex", os.path.join(TMP_DIRECTORY_NAME, LATEX_MAIN_NAME)])
+# subprocess.run(["biber", "--input-directory="+TMP_DIRECTORY_NAME, "--output-directory="+TMP_DIRECTORY_NAME, LATEX_MAIN_NAME])
+# pdflatex -output-directory=metafiles main
+subprocess.run(["pdflatex", "-output-directory="+TMP_DIRECTORY_NAME, LATEX_MAIN_NAME])
+subprocess.run(["pdflatex", "-output-directory="+TMP_DIRECTORY_NAME, LATEX_MAIN_NAME])
+subprocess.run(["pdflatex", "-output-directory="+TMP_DIRECTORY_NAME, LATEX_MAIN_NAME])
+
+# Move PDF file from temp folder to current directory
+shutil.copy(os.path.join(TMP_DIRECTORY_NAME,PDF_MAIN_NAME), os.getcwd())
+
+
+# OPTIONAL
+if args.view:
+	print(PDF_MAIN_NAME)
+	subprocess.run(["open", PDF_MAIN_NAME])
