@@ -7,6 +7,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("name", help="Latex file name")
 parser.add_argument("-v","--view", help="Open PDF file after compilation process", action="store_true")
+parser.add_argument("-c","--copy", help="Copy PDF file after compilation process to a specific folder")
 args = parser.parse_args()
 
 # Directory name for temporary files
@@ -39,6 +40,8 @@ shutil.copy(os.path.join(TMP_DIRECTORY_NAME,PDF_MAIN_NAME), os.getcwd())
 
 
 # OPTIONAL
+if args.copy:
+	shutil.copy(os.path.join(TMP_DIRECTORY_NAME,PDF_MAIN_NAME), args.copy)
+
 if args.view:
-	print(PDF_MAIN_NAME)
 	subprocess.run(["open", PDF_MAIN_NAME])
